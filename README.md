@@ -1,5 +1,5 @@
 # Account
-- Cette classe contient tous les données du compte FTX à l'aide de l'API Ket l'API secret (quantité d'USDT, ou d'un coin)
+- Cette classe contient tous les données du compte FTX à l'aide de l'API Key et l'API secret (quantité d'USDT, ou d'un coin), Attention! ces API sont des données confidentielles.
 - lorsqu'une opportunité se présente, cette classe permet d'effectuer des achats/ ventes au prix du marché. De plus, vous serez notifié lors de la transaction 
 
 # Coin
