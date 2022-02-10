@@ -8,7 +8,7 @@
 - Afficher le graphique du coin
 
 # BackTest
-- Lorsque vous avez une stratégie, il faut la tester pour voir si elle en vaut la peine. Cette classe permet donc de tester vos stratégies selon une période de votre choix
+- Lorsque vous avez une stratégie, il faut la tester pour voir si elle en vaut la peine. Cette classe permet donc de tester vos stratégies selon une période de votre choix. Attention! les résultats du passé ne garantissent pas les résultat du futur.
 
 # Main
 - nvm
