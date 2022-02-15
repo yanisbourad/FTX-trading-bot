@@ -1,25 +1,21 @@
 import ftx
 import pandas as pd
 import ta
-import time
-import json
 from math import *
 import time
-from plyer import notification
+#from plyer import notification
 
-cryptoSymbol = "BTC"
 
-myTruncate = 4
-#OldAPIKey = "mfeAhaAIkHsVPAq4IxRv_4kpE9DmjsKgT5q3ZsNH"
-#OldAPIsecret = "NadeOit5b5xYosXaOqyA2wy3QUN5R0T1ZX501J9Y"
 
-APIKey = "ARFjXUv2SmqZgOQAGgh8_u7ScfcIgPNKeTp_rnn-"
-APIsecret = "Y5Tjtrot-hBhWUG6swyXSdkL5YX4fL-_LsMJYkwd"
-accountName = "test"
+APIKey = ""
+APIsecret = ""
+accountName = ''
+
 class account:
     def __init__(self):
         self.client = ftx.FtxClient(api_key=APIKey, api_secret=APIsecret, subaccount_name=accountName)
         self.df = None
+        
     def dataFrame(self, pairSymbol):
         data = self.client.get_historical_data(
             market_name= pairSymbol,
@@ -34,26 +30,28 @@ class account:
     def getDFrame(self):
         return self.df
 
-    def getBalance(self, coin):
-        jsonBalance = self.client.get_balances()
+    def getBalance(self,client, coin):
+        jsonBalance = client.get_balances()
+
+        if jsonBalance == []:
+            return 0
         pandaBalance = pd.DataFrame(jsonBalance)
-        if pandaBalance.empty:
-            print("pas de crypto, pas de usdt")
-        #if pandaBalance.loc[pandaBalance["coin"] == coin].empty:
-            #return 0
-        #else:
-            #return float(pandaBalance.loc[pandaBalance["coin"] == coin]["free"])
+        #print(pandaBalance)
+        if pandaBalance.loc[pandaBalance['coin'] == coin].empty:
+            return 0
+        else:
+            return float(pandaBalance.loc[pandaBalance['coin'] == coin]['total'])
 
     def trunc(self, n, decimal):
         r= floor(float(n)*10**decimal)/10**decimal
         return str(r)
 
 
-    def getQuantityCoin(self, cryptoSymbol):
-        return account.getBalance(cryptoSymbol)
+    def getQuantityCoin(self):
+        return account.getBalance(self.client, pairSymbol)
 
     def getQuantityUsdt(self):
-        return account.getBalance("USD")
+        return account.getBalance(self.client, "USD")
 
 
     def getActualPrice(self):
@@ -68,12 +66,12 @@ class account:
             price= None,
             size= quantityBuy,
             type="market")
-        notification.notify(
-            title = "Achat du BTC/USDT",
-            message = f"ordre du marché à: {account.getActualPrice()}",
-            timeout =10
-        )
-        #print(buyOrder)
+        # notification.notify(
+        #     title = f"Achat du{pairSymbol} ",
+        #     message = f"ordre du marché à: {account.getActualPrice()}",
+        #     timeout =10
+        # )
+        print(buyOrder)
 
     def sellCoin(self,pairSymbol):
         sellOrder = self.client.place_order(
@@ -82,31 +80,42 @@ class account:
             price=None,
             size=trunc(self.getQuantityCoin(), myTruncate),
             type="market")
-        notification.notify(
-            title="Vente du BTC/USDT",
-            message=f"ordre du marché à: {account.getActualPrice()}",
-            timeout=10
-        )
-        #print(sellOrder)
+        # notification.notify(
+        #     title=f"Vente du {pairSymbol}",
+        #     message=f"ordre du marché à: {account.getActualPrice()}",
+        #     timeout=10
+        # )
+        print(sellOrder)
 
 
 if __name__ == '__main__':
+    fiatSymbol = 'USD'
     pairSymbol = "BTC/USD"
+    cryptoSymbol = 'BTC'
+    myTruncate = 4
+
     account = account()
     while(True):
         account.dataFrame(pairSymbol)
-        print(account.getDFrame())
-        print(account.getQuantityUsdt())
-        print(account.getQuantityCoin(cryptoSymbol))
-        print(account.getActualPrice())
+        #print(account.getDFrame())
 
         #----------------------------------------------------------------------------------------------------------
         if(float(account.getQuantityUsdt())> 5 and account.df["SMA200"].iloc[-2] > account.df["SMA600"].iloc[-2]):
-            account.buyCoin(pairSymbol)
+            #account.buyCoin(pairSymbol)
+            print("opportunité d'achat")
+            print("quantité d'USDT: ", account.getQuantityUsdt())
+            print("quantité de", pairSymbol, ": ", account.getQuantityCoin())
+            print("prix actuelle de", pairSymbol, ":", account.getActualPrice())
 
         elif (float(account.getQuantityCoin())> 0.0001 and account.df["SMA200"].iloc[-2] < account.df["SMA600"].iloc[-2]):
-            account.sellCoin(pairSymbol)
-        time.sleep(60)
+            print("opportunité de vente")
+            # account.sellCoin(pairSymbol)
+            print("quantité d'USDT: ", account.getQuantityUsdt())
+            print("quantité de", pairSymbol, ": ", account.getQuantityCoin())
+            print("prix actuelle de", pairSymbol, ":", account.getActualPrice())
+        else:
+             print("No opportunity")
+        time.sleep(3600)
 
 
 
