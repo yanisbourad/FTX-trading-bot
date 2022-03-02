@@ -141,7 +141,7 @@ if __name__ == '__main__':
         # buying procedure
 
         if buyCondition(dframe.iloc[-2], dframe.iloc[-3]):
-            if float(fiatAmount) > 12 and i["position"] == False and nbPosition < 4:
+            if float(fiatAmount) > 12 and i["position"] == False and nbPosition < coins:
                 quantityBuy = round(float(amountOneCoin) / actualPrice, 6)
                 buyOrder = client.place_order(
                     market=pair,
